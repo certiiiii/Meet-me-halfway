@@ -44,15 +44,13 @@ if ($user_role === 'utilisateur') {
 <body>
 
 <header>
-    
-    <nav class="navbar">
-
     <nav class="navbar">
         <ul>
             <img src="images/logo.png" alt="Logo meet me halfway" class="logo">
             <li><a href="index.php">Accueil</a></li>
             <li><a href="aboutus.php">À propos</a></li>
             <?php if (isset($_SESSION['user_id'])): ?>
+                <li><a href="mes_commandes.php">Mes Commandes</a></li>
                 <li><a href="logout.php">Déconnexion</a></li>
                 <li class="welcome-text">Bienvenue, <?= htmlspecialchars($_SESSION['user_name']); ?> (<?= $user_role ?>)</li>
             <?php else: ?>

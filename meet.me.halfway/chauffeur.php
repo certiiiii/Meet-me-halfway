@@ -9,6 +9,12 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $chauffeur_id = intval($_GET['id']);
 
 try {
+    // Connexion à la base de données
+    $conn = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    ]);
+
+    // Récupérer les infos du chauffeur
     $stmt = $conn->prepare("SELECT name, vehicule, ville FROM users WHERE id = :chauffeur_id AND role = 'chauffeur'");
     $stmt->execute([':chauffeur_id' => $chauffeur_id]);
     $chauffeur = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -36,10 +42,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil du Chauffeur</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/png" href="images/favicon.ico">
-    <title>meet me halfway</title>
 </head>
-<body>
 
 <header>
     <nav class="navbar">
@@ -48,7 +51,7 @@ try {
         </ul>
     </nav>
 </header>
-
+<body>
 <h1>Profil du Chauffeur</h1>
 <h2><?= htmlspecialchars($chauffeur['name']) ?></h2>
 <p><strong>Véhicule :</strong> <?= htmlspecialchars($chauffeur['vehicule']) ?></p>
@@ -56,18 +59,19 @@ try {
 
 <h2>Avis des utilisateurs</h2>
 <?php if (!empty($avis)) : ?>
-    <ul>
+    <ul class="avl">
         <?php foreach ($avis as $a) : ?>
             <li>
-                <strong><?= htmlspecialchars($a['utilisateur']) ?></strong> - <?= $a['note'] ?>/5 <br>
+                <strong><?= htmlspecialchars($a['utilisateur']) ?></strong> - <span class="note"><?= $a['note'] ?>/5</span> <br>
                 <em><?= htmlspecialchars($a['commentaire']) ?></em> <br>
-                <small>Posté le <?= $a['date_avis'] ?></small>
+                <small>Posté le <?= htmlspecialchars($a['date_avis']) ?></small>
             </li>
         <?php endforeach; ?>
     </ul>
 <?php else : ?>
     <p>Aucun avis pour ce chauffeur.</p>
 <?php endif; ?>
+
 
 </body>
 </html>

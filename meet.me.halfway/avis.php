@@ -53,11 +53,19 @@ if (!isset($_GET['chauffeur_id']) || empty($_GET['chauffeur_id'])) {
 $chauffeur_id = intval($_GET['chauffeur_id']);
 
 try {
+    // Récupérer les infos du chauffeur
+    $stmt = $conn->prepare("SELECT name, vehicule, ville FROM users WHERE id = ? AND role = 'chauffeur'");
+    $stmt->execute([$chauffeur_id]);
+    $chauffeur = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$chauffeur) {
+        die("Chauffeur non trouvé.");
+    }
+
     // Récupérer les avis
-    $stmt = $conn->prepare("SELECT utilisateur_id, note, commentaire FROM avis WHERE chauffeur_id = ?");
+    $stmt = $conn->prepare("SELECT u.name AS utilisateur, a.note, a.commentaire, a.date_avis FROM avis a JOIN users u ON a.utilisateur_id = u.id WHERE a.chauffeur_id = ?");
     $stmt->execute([$chauffeur_id]);
     $avis = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
@@ -68,19 +76,45 @@ try {
     <meta charset="UTF-8">
     <title>Avis du chauffeur</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="images/favicon.ico">
 </head>
-<body>
-    <h1>Avis sur le chauffeur</h1>
-    
-    <?php if (!empty($avis)) : ?>
+
+<header>
+    <nav class="navbar">
         <ul>
-            <?php foreach ($avis as $row) : ?>
-                <li>Note : <?= htmlspecialchars($row['note']); ?>/5 - <?= htmlspecialchars($row['commentaire']); ?></li>
-            <?php endforeach; ?>
+            <img src="images/logo.png" alt="Logo meet me halfway" class="logo">
+            <li><a href="index.php">Accueil</a></li>
+            <li><a href="aboutus.php">À propos</a></li>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <li><a href="mes_commandes.php">Mes Commandes</a></li>
+                <li><a href="logout.php">Déconnexion</a></li>
+            <?php else: ?>
+                <li><a href="login.php">Connexion</a></li>
+                <li><a href="register.php">Créer un compte</a></li>
+            <?php endif; ?>
         </ul>
-    <?php else : ?>
-        <p>Aucun avis pour ce chauffeur.</p>
-    <?php endif; ?>
+    </nav>
+</header>
+<body>
+<h1>Profil du Chauffeur</h1>
+<h2><?= htmlspecialchars($chauffeur['name']) ?></h2>
+<p><strong>Véhicule :</strong> <?= htmlspecialchars($chauffeur['vehicule']) ?></p>
+<p><strong>Ville :</strong> <?= htmlspecialchars($chauffeur['ville']) ?></p>
+
+<h2>Avis des utilisateurs</h2>
+<?php if (!empty($avis)) : ?>
+    <ul class="avl">
+        <?php foreach ($avis as $a) : ?>
+            <li>
+                <strong><?= htmlspecialchars($a['utilisateur']) ?></strong><br>
+                <em><?= htmlspecialchars($a['commentaire']) ?></em> - <span class="note"><?= $a['note'] ?>/5</span> <br>
+                <small>Posté le <?= htmlspecialchars($a['date_avis']) ?></small>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+<?php else : ?>
+    <p>Aucun avis pour ce chauffeur.</p>
+<?php endif; ?>
 
     <!-- Formulaire pour ajouter un avis -->
     <h2>Donner une note</h2>
