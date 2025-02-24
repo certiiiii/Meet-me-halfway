@@ -1,8 +1,8 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "root";
-$dbname = "taxi_service";
+$servername = "109.234.161.108";
+$username = "xtjh1161_camille_cloupet";
+$password = "3T2Em,(dW.W1";
+$dbname = "xtjh1161_camille_cloupet_bdd";
 
 // Définition du DSN pour PDO
 $dsn = "mysql:host=$servername;dbname=$dbname;charset=utf8";
